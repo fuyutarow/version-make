@@ -9,8 +9,15 @@ Support
 
 ## Installation
 ```
-brew install fuyutarow/upver/upver
+brew install --HEAD fuyutarow/upver/upver
 ```
+
+clean uninstall
+```
+brew uninstall fuyutarow/upver/upver
+brew untap fuyutarow/upver
+```
+
 
 ## Usage
 semver: X.Y.Z (Major.Minor.Patch)
