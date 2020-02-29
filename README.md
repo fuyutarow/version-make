@@ -2,6 +2,11 @@
 
 Manager for [SemVer](https://semver.org/)
 
+Support
+- Cargo.toml (Cargo)
+- package.json (npm, yarn)
+
+
 ## Installation
 ```
 brew install fuyutarow/upver/upver

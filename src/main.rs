@@ -85,6 +85,7 @@ impl Manager {
                 r#"(\s*version\s*=\s*["|']){version}(["|']\n)"#,
                 version = version
             ),
+            "package.json" => format!(r#"("version":\s*"){version}(")"#, version = version),
             _ => format!(
                 r#"(\s*version\s*=\s*["|']){version}(["|']\n)"#,
                 version = version
@@ -133,7 +134,7 @@ impl Manager {
     }
 
     fn print(self) {
-        println!("{}", &self.contents);
+        print!("{}", &self.contents);
     }
 }
 
