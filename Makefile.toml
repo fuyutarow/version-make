@@ -1,0 +1,13 @@
+[tasks.hot]
+run_task = { name = ["build", "move-bin"] }
+
+[tasks.move-bin]
+script = [
+'''
+cp ./target/release/upver ./bin/
+'''
+]
+
+[tasks.build]
+command = "cargo"
+args = ["build", "--release"]
