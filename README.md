@@ -19,6 +19,10 @@ semver: X.Y.Z (Major.Minor.Patch)
   ```
   upver up -x Cargo.toml
   ```
+- Increment Patch version: x.y.Z+1 and replace new file
+  ```
+  upver up -z -r Cargo.toml
+  ```
 
 
 ## Development

@@ -20,8 +20,10 @@ enum Opt {
         major: bool,
         #[structopt(short = "y", long = "minor")]
         minor: bool,
-        #[structopt(short = "z", long = "pathc")]
+        #[structopt(short = "z", long = "patch")]
         patch: bool,
+        #[structopt(short = "r", long = "replace")]
+        replace: bool,
     },
 }
 
@@ -128,11 +130,14 @@ impl Manager {
         Self { contents, ..self }
     }
 
-    fn save(self, out_path: &str) {
+    fn save(self, out_path: &PathBuf) {
         let mut file = File::create(out_path).unwrap();
-        writeln!(&mut file, "{}", &self.contents).unwrap();
+        write!(&mut file, "{}", &self.contents).unwrap();
     }
 
+    fn overwrite(self) {
+        self.clone().save(&self.fpath)
+    }
     fn print(self) {
         print!("{}", &self.contents);
     }
@@ -145,11 +150,16 @@ fn main() {
             major,
             minor,
             patch,
+            replace,
         } => {
             let mut manager = Manager::load(&fpath);
             manager = manager.update_version((major, minor, patch));
-            // manager.save("new.toml");
-            manager.print();
+
+            if replace {
+                manager.overwrite();
+            } else {
+                manager.print();
+            }
         }
         _ => {}
     }
