@@ -1,4 +1,5 @@
 // use semver;
+use regex;
 use semver::Version;
 use serde_derive::{Deserialize, Serialize};
 use std::fs;
@@ -91,21 +92,19 @@ fn main() {
             let mut contents = String::new();
             f.read_to_string(&mut contents)
                 .expect("something went wrong reading the file");
+            let version_template = |version: &str| {
+                format!(
+                    r#"(\s*version\s*=\s*["|']){version}(["|']\n)"#,
+                    version = version
+                )
+            };
 
-            /// toml validation
-            match contents.parse::<Toml>() {
-                Ok(toml_string) => {}
-                Err(error) => panic!("failed to parse TOML: {}", error),
-            }
+            let re_version =
+                regex::Regex::new(&version_template(r#"(?P<version>[a-zA-Z0-9-+.]+)"#)).unwrap();
+            dbg!(&re_version);
+            let caps = re_version.captures(&contents).unwrap();
+            let ver_s = &caps["version"];
 
-            let mut this: Toml = toml::from_str(&contents).expect("failed to parse TOML");
-            let ver_s = this
-                .get("package")
-                .unwrap()
-                .get("version")
-                .unwrap()
-                .as_str()
-                .unwrap();
             let mut ver = Version::parse(&ver_s).unwrap();
             if major {
                 ver = ver.up_major(1);
@@ -116,18 +115,16 @@ fn main() {
             if patch {
                 ver = ver.up_patch(1);
             }
-            let mut ver_t = this
-                .get_mut("package")
-                .unwrap()
-                .get_mut("version")
-                .unwrap()
-                .as_str()
-                .unwrap();
-            ver_t = &ver.to_string();
+            dbg!(&ver);
+            let ver_t: String = format!("{}{}{}", &caps[1], &ver.to_string().as_str(), &caps[3]);
+            dbg!(&ver_t);
+            let result = re_version
+                .replace_all(&contents, ver_t.as_str())
+                .to_string();
 
+            dbg!(&result);
             let mut file = File::create("new.toml").unwrap();
-            let content = toml::to_string(&this).expect("Could not write to file");
-            writeln!(&mut file, "{}", content).unwrap();
+            writeln!(&mut file, "{}", &result).unwrap();
         }
         _ => {}
     }
