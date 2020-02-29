@@ -2,6 +2,7 @@
 use regex;
 use semver::Version;
 use serde_derive::{Deserialize, Serialize};
+use std::ffi::OsStr;
 use std::fs;
 use std::fs::File;
 use std::io::prelude::*;
@@ -56,7 +57,7 @@ struct CargoPackage {
     version: String,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Clone, Deserialize)]
 struct Manager {
     fpath: PathBuf,
     contents: String,
@@ -74,15 +75,30 @@ impl Manager {
         }
     }
 
-    fn update_version(self, (major, minor, patch): (bool, bool, bool)) -> Self {
-        let version_template = |version: &str| {
-            format!(
+    fn version_template(self, version: &str) -> String {
+        let fpath: Option<String> = match self.fpath.file_name() {
+            Some(os_str) => Some(os_str.to_str().unwrap().to_owned()),
+            None => None,
+        };
+        match fpath.unwrap_or("".to_owned()).as_str() {
+            "Cargo.toml" => format!(
                 r#"(\s*version\s*=\s*["|']){version}(["|']\n)"#,
                 version = version
-            )
-        };
-        let re_version =
-            regex::Regex::new(&version_template(r#"(?P<version>[a-zA-Z0-9-+.]+)"#)).unwrap();
+            ),
+            _ => format!(
+                r#"(\s*version\s*=\s*["|']){version}(["|']\n)"#,
+                version = version
+            ),
+        }
+    }
+
+    fn update_version(self, (major, minor, patch): (bool, bool, bool)) -> Self {
+        let re_version = regex::Regex::new(
+            &self
+                .clone()
+                .version_template(r#"(?P<version>[a-zA-Z0-9-+.]+)"#),
+        )
+        .unwrap();
         let caps = re_version.captures(&self.contents).unwrap();
         let ver_s = &caps["version"];
         let mut ver = Version::parse(&ver_s).unwrap();
@@ -98,8 +114,12 @@ impl Manager {
         }
 
         let ver_t: String = format!("{}{}{}", &caps[1], &ver.to_string().as_str(), &caps[3]);
-        let re_version =
-            regex::Regex::new(&version_template(r#"(?P<version>[a-zA-Z0-9-+.]+)"#)).unwrap();
+        let re_version = regex::Regex::new(
+            &self
+                .clone()
+                .version_template(r#"(?P<version>[a-zA-Z0-9-+.]+)"#),
+        )
+        .unwrap();
         let contents = re_version
             .replace_all(&self.contents, ver_t.as_str())
             .to_string();
