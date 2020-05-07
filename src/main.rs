@@ -22,6 +22,10 @@ enum Opt {
         minor: bool,
         #[structopt(short = "z", long = "patch")]
         patch: bool,
+        // #[structopt(short = "p", long = "pre-release")]
+        // pre_release: Option<String>,
+        // #[structopt(short = "b", long = "build")]
+        // build: Option<String>,
         #[structopt(short = "r", long = "replace")]
         replace: bool,
     },
@@ -88,6 +92,10 @@ impl Manager {
                 version = version
             ),
             "package.json" => format!(r#"("version":\s*"){version}(")"#, version = version),
+            "vue.config.js" => format!(
+                r#"(process\.env\.VUE_APP_VERSION\s*=\s*["|']){version}(["|'];*)"#,
+                version = version
+            ),
             _ => format!(
                 r#"(\s*version\s*=\s*["|']){version}(["|']\n)"#,
                 version = version

@@ -1,0 +1,1 @@
+process.env.VUE_APP_VERSION = '0.30.8+20200506';
