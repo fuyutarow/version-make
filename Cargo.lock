@@ -290,7 +290,7 @@ checksum = "826e7639553986605ec5979c7dd957c7895e93eabed50ab2ffa7f6128a75097c"
 
 [[package]]
 name = "upver"
-version = "0.202005.3"
+version = "0.202005.4"
 dependencies = [
  "regex",
  "semver",
