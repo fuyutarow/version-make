@@ -2,18 +2,65 @@ name: Rust
 
 on:
   push:
-    branches: [ master ]
+    branches: [master]
+    paths:
+      - "Cargo.toml"
   pull_request:
-    branches: [ master ]
+    branches: [master]
 
 jobs:
   build:
+    strategy:
+      matrix:
+        target:
+          - x86_64-unknown-linux-gnu
+          - x86_64-apple-darwin
+        include:
+          - target: x86_64-unknown-linux-gnu
+            os: ubuntu-latest
+          - target: x86_64-apple-darwin
+            os: macos-latest
 
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
 
     steps:
-    - uses: actions/checkout@v2
-    - name: Build
-      run: cargo build --verbose
-    - name: Run tests
-      run: cargo test --verbose
+      - uses: actions/checkout@v2
+
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+      - uses: actions-rs/cargo@v1.0.1
+        with:
+          command: build
+          args: --verbose --release --target=${{ matrix.target }}
+          use-cross: true
+      - name: Run tests
+        run: cargo test --verbose
+
+      - run: |
+          zip --junk-paths upver-${{ matrix.target }} target/${{ matrix.target }}/release/upver{,.exe}
+      - uses: actions/upload-artifact@v1
+        with:
+          name: build-${{ matrix.target }}
+          path: upver-${{ matrix.target }}.zip
+
+  create-release:
+    needs: [build]
+    runs-on: ubuntu-latest
+    steps:
+      - id: create-release
+        uses: actions/create-release@v1.0.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: false
+          prerelease: false
+      - run: |
+          echo '${{ steps.create-release.outputs.upload_url }}' > release_upload_url.txt
+      - uses: actions/upload-artifact@v1
+        with:
+          name: create-release
+          path: release_upload_url.txt
