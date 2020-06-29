@@ -90,5 +90,6 @@ jobs:
           path: upver
       - name: Release with tag
         run: |
-          git tag v$(upver/bin/musl/upver show Cargo.toml)
+          git pull
+          git tag v$(upver/bin/musl/upver show --core Cargo.toml)
           git push --tags
