@@ -12,6 +12,11 @@ use toml::Value as Toml;
 
 #[derive(StructOpt, Debug)]
 enum Opt {
+    #[structopt(name = "show")]
+    Show {
+        #[structopt(parse(from_os_str))]
+        fpath: PathBuf,
+    },
     #[structopt(name = "up")]
     Up {
         #[structopt(parse(from_os_str))]
@@ -103,6 +108,18 @@ impl Manager {
         }
     }
 
+    fn parse_version(self) -> Version {
+        let re_version = regex::Regex::new(
+            &self
+                .clone()
+                .version_template(r#"(?P<version>[a-zA-Z0-9-+.]+)"#),
+        )
+        .unwrap();
+        let caps = re_version.captures(&self.contents).unwrap();
+        let ver_s = &caps["version"];
+        return Version::parse(&ver_s).unwrap();
+    }
+
     fn update_version(self, (major, minor, patch): (bool, bool, bool)) -> Self {
         let re_version = regex::Regex::new(
             &self
@@ -153,6 +170,11 @@ impl Manager {
 
 fn main() {
     match Opt::from_args() {
+        Opt::Show { fpath } => {
+            let mut manager = Manager::load(&fpath);
+            let s = manager.parse_version().to_string();
+            println!("{}", &s)
+        }
         Opt::Up {
             fpath,
             major,

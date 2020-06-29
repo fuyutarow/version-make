@@ -1,0 +1,80 @@
+name: Release
+
+on:
+  pull_request:
+    branches:
+      - alpha
+    types: [closed]
+
+jobs:
+  musl:
+    name: x86_64-unknown-linux-musl
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          target: x86_64-unknown-linux-musl
+          override: true
+      - uses: actions-rs/cargo@v1
+        with:
+          use-cross: true
+          command: build
+          args: --release --target x86_64-unknown-linux-musl
+      - run: |
+          cp target/x86_64-unknown-linux-musl/release/upver bin/musl/
+      - name: Commit your repo
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git commit -am "[GitHub Actions] Build for linux"
+          git push
+
+  mac:
+    name: x86_64-apple-darwin
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          target: x86_64-apple-darwin
+          override: true
+      - uses: actions-rs/cargo@v1
+        with:
+          use-cross: true
+          command: build
+          args: --release --target x86_64-apple-darwin
+      - run: |
+          cp target/x86_64-apple-darwin/release/upver bin/mac/
+      - name: Commit your repo
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git commit -am "[GitHub Actions] Build for mac"
+          git push
+
+  upver:
+    runs-on: ubuntu-latest
+    needs: [musl, mac]
+    steps:
+      - name: Checkout your repo
+        uses: actions/checkout@v2
+      - name: Checkout fuyutarow/upver as a CI tool
+        uses: actions/checkout@v2
+        with:
+          repository: fuyutarow/upver
+          path: upver
+      - name: Update version
+        run: upver/bin/musl/upver up -rz Cargo.toml
+      - name: Commit your repo
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git commit -am "[GitHub Actions] Update version"
+          git push
+      - name: Commit your repo
+        run: |
+          git tag v$(upver/bin/musl/upver show Cargo.toml)
+          git push --tags
