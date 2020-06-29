@@ -76,7 +76,7 @@ jobs:
           git commit -am "[GitHub Actions] Build for mac"
           git push
 
-  upver:
+  tag:
     runs-on: ubuntu-latest
     needs: [musl, mac]
     steps:
