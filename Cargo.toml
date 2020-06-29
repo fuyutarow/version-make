@@ -1,6 +1,6 @@
 [package]
 name = "upver"
-version = "0.202005.0"
+version = "0.202006.0"
 authors = ["fuyutarow <fuyutarow@gmail.com>"]
 edition = "2018"
 
