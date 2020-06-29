@@ -46,12 +46,15 @@ impl Semver for Version {
     fn up_major(self, n: u64) -> Self {
         Version {
             major: self.clone().major + n,
+            minor: 0,
+            patch: 0,
             ..self
         }
     }
     fn up_minor(self, n: u64) -> Self {
         Version {
             minor: self.clone().minor + n,
+            patch: 0,
             ..self
         }
     }
