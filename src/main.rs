@@ -16,6 +16,8 @@ enum Opt {
     Show {
         #[structopt(parse(from_os_str))]
         fpath: PathBuf,
+        #[structopt(long = "core")]
+        core: bool,
     },
     #[structopt(name = "up")]
     Up {
@@ -40,8 +42,16 @@ trait Semver {
     fn up_major(self, n: u64) -> Self;
     fn up_minor(self, n: u64) -> Self;
     fn up_patch(self, n: u64) -> Self;
-    fn set_pre(self, pre: &str) -> Self;
-    fn set_build(self, build: &str) -> Self;
+    fn set_pre(self, pre: Option<String>) -> Self;
+    fn set_build(self, build: Option<String>) -> Self;
+    fn update(
+        &mut self,
+        major: bool,
+        minor: bool,
+        patch: bool,
+        pre: Option<String>,
+        build: Option<String>,
+    ) -> Self;
 }
 
 impl Semver for Version {
@@ -53,6 +63,7 @@ impl Semver for Version {
             ..self
         }
     }
+
     fn up_minor(self, n: u64) -> Self {
         Version {
             minor: self.clone().minor + n,
@@ -60,23 +71,63 @@ impl Semver for Version {
             ..self
         }
     }
+
     fn up_patch(self, n: u64) -> Self {
         Version {
             patch: self.clone().patch + n,
             ..self
         }
     }
-    fn set_pre(self, pre: &str) -> Self {
-        Version {
-            pre: vec![semver::Identifier::AlphaNumeric(pre.into())],
-            ..self
+
+    fn set_pre(self, pre: Option<String>) -> Self {
+        match pre {
+            Some(pre_s) if &pre_s == "" => Version {
+                pre: vec![],
+                ..self
+            },
+            Some(pre_s) => Version {
+                pre: vec![semver::Identifier::AlphaNumeric(pre_s.into())],
+                ..self
+            },
+            None => self,
         }
     }
-    fn set_build(self, build: &str) -> Self {
-        Version {
-            build: vec![semver::Identifier::AlphaNumeric(build.into())],
-            ..self
+
+    fn set_build(self, build: Option<String>) -> Self {
+        match build {
+            Some(build_s) if &build_s == "" => Version {
+                build: vec![],
+                ..self
+            },
+            Some(build_s) => Version {
+                build: vec![semver::Identifier::AlphaNumeric(build_s.into())],
+                ..self
+            },
+            None => self,
         }
+    }
+
+    fn update(
+        &mut self,
+        major: bool,
+        minor: bool,
+        patch: bool,
+        pre: Option<String>,
+        build: Option<String>,
+    ) -> Self {
+        let mut ver = self.clone();
+        if major {
+            ver = ver.up_major(1);
+        }
+        if minor {
+            ver = ver.up_minor(1);
+        }
+        if patch {
+            ver = ver.up_patch(1);
+        }
+        ver = ver.set_pre(pre);
+        ver = ver.set_build(build);
+        return ver;
     }
 }
 
@@ -150,22 +201,7 @@ impl Manager {
         let caps = re_version.captures(&self.contents).unwrap();
         let ver_s = &caps["version"];
         let mut ver = Version::parse(&ver_s).unwrap();
-
-        if major {
-            ver = ver.up_major(1);
-        }
-        if minor {
-            ver = ver.up_minor(1);
-        }
-        if patch {
-            ver = ver.up_patch(1);
-        }
-        if let Some(pre_s) = pre {
-            ver = ver.set_pre(&pre_s)
-        }
-        if let Some(build_s) = build {
-            ver = ver.set_build(&build_s)
-        }
+        ver = ver.update(major, minor, patch, pre, build);
 
         let ver_t: String = format!("{}{}{}", &caps[1], &ver.to_string().as_str(), &caps[3]);
         let re_version = regex::Regex::new(
@@ -196,9 +232,15 @@ impl Manager {
 
 fn main() {
     match Opt::from_args() {
-        Opt::Show { fpath } => {
+        Opt::Show { fpath, core } => {
             let mut manager = Manager::load(&fpath);
-            let s = manager.parse_version().to_string();
+            let mut ver = manager.parse_version();
+
+            if (core) {
+                ver = ver.update(false, false, false, Some("".into()), Some("".into()));
+            }
+
+            let s = ver.to_string();
             println!("{}", &s)
         }
         Opt::Up {
