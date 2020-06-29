@@ -1,0 +1,36 @@
+Arguments: 
+  /Users/fuyutarow/.nodebrew/node/v12.9.1/bin/node /Users/fuyutarow/.yarn/bin/yarn.js add -D @type/react-katex
+
+PATH: 
+  /Users/fuyutarow/google-cloud-sdk/bin:/Users/fuyutarow/.yarn/bin:/Users/fuyutarow/.config/yarn/global/node_modules/.bin:/Users/fuyutarow/.local/bin:/Users/fuyutarow/.wasmer/bin:/Users/fuyutarow/.wasmer/globals/wapm_packages/.bin:/Cellar/texlive/20190406/libexec/bin/x86_64-linux:/Users/fuyutarow/.cargo/bin:/Users/fuyutarow/.poetry/bin:/Users/fuyutarow/.pyenv/shims:/Users/fuyutarow/.pyenv/bin:/Users/fuyutarow/.nodebrew/current/bin:/Applications/MATLAB_R2019b.app/bin:/Users/fuyutarow/.julia/bin:/Users/fuyutarow/.poetry/bin:/Users/fuyutarow/.cargo/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Library/TeX/texbin:/Library/Apple/usr/bin:/Users/fuyutarow/google-cloud-sdk/bin:/Users/fuyutarow/.yarn/bin:/Users/fuyutarow/.config/yarn/global/node_modules/.bin:/Users/fuyutarow/.zinit/polaris/bin:/Users/fuyutarow/.local/bin:/Users/fuyutarow/.wasmer/bin:/Users/fuyutarow/.wasmer/globals/wapm_packages/.bin:/Cellar/texlive/20190406/libexec/bin/x86_64-linux:/Users/fuyutarow/.cargo/bin:/Users/fuyutarow/.poetry/bin:/Users/fuyutarow/.pyenv/shims:/Users/fuyutarow/.pyenv/bin:/Users/fuyutarow/.nodebrew/current/bin:/Applications/MATLAB_R2019b.app/bin:/Users/fuyutarow/.julia/bin:/Users/fuyutarow/Library/Android/sdk/emulator:/Users/fuyutarow/Library/Android/sdk/tools:/Users/fuyutarow/Library/Android/sdk/tools/bin:/Users/fuyutarow/Library/Android/sdk/platform-tools:/Users/fuyutarow/go/bin:/Applications/SageMath-8.5.app/Contents/Resources/sage:/Users/fuyutarow/.v:/home/fuyutarow/.local/bin:/Users/fuyutarow/Library/Android/sdk/emulator:/Users/fuyutarow/Library/Android/sdk/tools:/Users/fuyutarow/Library/Android/sdk/tools/bin:/Users/fuyutarow/Library/Android/sdk/platform-tools:/Users/fuyutarow/go/bin:/Applications/SageMath-8.5.app/Contents/Resources/sage:/Users/fuyutarow/.v:/home/fuyutarow/.local/bin
+
+Yarn version: 
+  1.22.4
+
+Node version: 
+  12.9.1
+
+Platform: 
+  darwin x64
+
+Trace: 
+  Error: https://registry.yarnpkg.com/@type%2freact-katex: Not found
+      at Request.params.callback [as _callback] (/Users/fuyutarow/.yarn/lib/cli.js:66987:18)
+      at Request.self.callback (/Users/fuyutarow/.yarn/lib/cli.js:140748:22)
+      at Request.emit (events.js:209:13)
+      at Request.<anonymous> (/Users/fuyutarow/.yarn/lib/cli.js:141720:10)
+      at Request.emit (events.js:209:13)
+      at IncomingMessage.<anonymous> (/Users/fuyutarow/.yarn/lib/cli.js:141642:12)
+      at Object.onceWrapper (events.js:297:20)
+      at IncomingMessage.emit (events.js:214:15)
+      at endReadableNT (_stream_readable.js:1178:12)
+      at processTicksAndRejections (internal/process/task_queues.js:77:11)
+
+npm manifest: 
+  No manifest
+
+yarn manifest: 
+  No manifest
+
+Lockfile: 
+  No lockfile
