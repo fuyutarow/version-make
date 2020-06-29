@@ -49,7 +49,7 @@ jobs:
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git commit -am "[GitHub Actions] Build for linux"
-          git push --force-with-lease
+          git push --force
 
   mac:
     name: x86_64-apple-darwin
@@ -74,7 +74,7 @@ jobs:
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git commit -am "[GitHub Actions] Build for mac"
-          git push --force-with-lease
+          git push --force
 
   tag:
     runs-on: ubuntu-latest
