@@ -7,9 +7,29 @@ on:
     types: [closed]
 
 jobs:
+  upver:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout your repo
+        uses: actions/checkout@v2
+      - name: Checkout fuyutarow/upver as a CI tool
+        uses: actions/checkout@v2
+        with:
+          repository: fuyutarow/upver
+          path: upver
+      - name: Update version
+        run: upver/bin/musl/upver up -rz Cargo.toml
+      - name: Commit your repo
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git commit -am "[GitHub Actions] Update version"
+          git push
+
   musl:
     name: x86_64-unknown-linux-musl
     runs-on: ubuntu-latest
+    needs: upver
     steps:
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
@@ -34,6 +54,7 @@ jobs:
   mac:
     name: x86_64-apple-darwin
     runs-on: macos-latest
+    needs: upver
     steps:
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
@@ -59,22 +80,13 @@ jobs:
     runs-on: ubuntu-latest
     needs: [musl, mac]
     steps:
-      - name: Checkout your repo
-        uses: actions/checkout@v2
+      - uses: actions/checkout@v2
       - name: Checkout fuyutarow/upver as a CI tool
         uses: actions/checkout@v2
         with:
           repository: fuyutarow/upver
           path: upver
-      - name: Update version
-        run: upver/bin/musl/upver up -rz Cargo.toml
-      - name: Commit your repo
-        run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          git commit -am "[GitHub Actions] Update version"
-          git push
-      - name: Commit your repo
+      - name: Release with tag
         run: |
           git tag v$(upver/bin/musl/upver show Cargo.toml)
           git push --tags
