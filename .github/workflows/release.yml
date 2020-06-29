@@ -1,11 +1,10 @@
 name: Release
 
-on: [push]
-# on:
-#   pull_request:
-#     branches:
-#       - alpha
-#     types: [closed]
+on:
+  pull_request:
+    branches:
+      - alpha
+    types: [closed]
 
 jobs:
   musl:
