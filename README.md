@@ -1,4 +1,4 @@
-# UpVER
+# upver
 
 Manager for [SemVer](https://semver.org/)
 
@@ -29,6 +29,10 @@ semver: X.Y.Z (Major.Minor.Patch)
 - Increment Patch version: x.y.Z+1 and replace new file
   ```
   upver up -z -r Cargo.toml
+  ```
+- Set pre and build: x.y.z -> x.y.z-alpha+beta
+  ```
+  upver up --pre alpha --build beta Cargo.toml
   ```
 
 

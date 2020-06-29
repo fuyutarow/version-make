@@ -27,10 +27,10 @@ enum Opt {
         minor: bool,
         #[structopt(short = "z", long = "patch")]
         patch: bool,
-        // #[structopt(short = "p", long = "pre-release")]
-        // pre_release: Option<String>,
-        // #[structopt(short = "b", long = "build")]
-        // build: Option<String>,
+        #[structopt(short = "p", long = "pre")]
+        pre: Option<String>,
+        #[structopt(short = "b", long = "build")]
+        build: Option<String>,
         #[structopt(short = "r", long = "replace")]
         replace: bool,
     },
@@ -40,6 +40,8 @@ trait Semver {
     fn up_major(self, n: u64) -> Self;
     fn up_minor(self, n: u64) -> Self;
     fn up_patch(self, n: u64) -> Self;
+    fn set_pre(self, pre: &str) -> Self;
+    fn set_build(self, build: &str) -> Self;
 }
 
 impl Semver for Version {
@@ -61,6 +63,18 @@ impl Semver for Version {
     fn up_patch(self, n: u64) -> Self {
         Version {
             patch: self.clone().patch + n,
+            ..self
+        }
+    }
+    fn set_pre(self, pre: &str) -> Self {
+        Version {
+            pre: vec![semver::Identifier::AlphaNumeric(pre.into())],
+            ..self
+        }
+    }
+    fn set_build(self, build: &str) -> Self {
+        Version {
+            build: vec![semver::Identifier::AlphaNumeric(build.into())],
             ..self
         }
     }
@@ -123,7 +137,10 @@ impl Manager {
         return Version::parse(&ver_s).unwrap();
     }
 
-    fn update_version(self, (major, minor, patch): (bool, bool, bool)) -> Self {
+    fn update_version(
+        self,
+        (major, minor, patch, pre, build): (bool, bool, bool, Option<String>, Option<String>),
+    ) -> Self {
         let re_version = regex::Regex::new(
             &self
                 .clone()
@@ -142,6 +159,12 @@ impl Manager {
         }
         if patch {
             ver = ver.up_patch(1);
+        }
+        if let Some(pre_s) = pre {
+            ver = ver.set_pre(&pre_s)
+        }
+        if let Some(build_s) = build {
+            ver = ver.set_build(&build_s)
         }
 
         let ver_t: String = format!("{}{}{}", &caps[1], &ver.to_string().as_str(), &caps[3]);
@@ -183,10 +206,12 @@ fn main() {
             major,
             minor,
             patch,
+            pre,
+            build,
             replace,
         } => {
             let mut manager = Manager::load(&fpath);
-            manager = manager.update_version((major, minor, patch));
+            manager = manager.update_version((major, minor, patch, pre, build));
 
             if replace {
                 manager.overwrite();
