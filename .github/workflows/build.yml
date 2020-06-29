@@ -19,7 +19,9 @@ jobs:
           command: build
           args: --release --target x86_64-unknown-linux-musl
       - run: |
-          cp target/release/upver bin/musl/upver
+          ls target/x86_64-unknown-linux-musl/release/
+      - run: |
+          cp target/x86_64-unknown-linux-musl/release/upver bin/musl/upver
   mac:
     name: x86_64-apple-darwin
     runs-on: macos-latest
@@ -34,6 +36,12 @@ jobs:
         with:
           use-cross: true
           command: build
-          args: --release --target  x86_64-apple-darwin
+          args: --release --target x86_64-apple-darwin
       - run: |
-          cp target/release/upver bin/mac/upver
+          ls .
+      - run: |
+          ls target
+      - run: |
+          ls target/release
+      # - run: |
+      #     cp target/release/upver bin/mac/upver
