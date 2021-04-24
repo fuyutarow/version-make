@@ -3,8 +3,9 @@
 Manager for [SemVer](https://semver.org/)
 
 Support
-- Cargo.toml (Cargo)
-- package.json (npm, yarn)
+- Cargo.toml ([Cargo](https://github.com/rust-lang/cargo))
+- package.json ([npm](https://github.com/npm/cli), [yarn](https://github.com/yarnpkg/yarn))
+- pyproject.toml ([Poetry](https://github.com/python-poetry/poetry))
 
 
 ## Installation

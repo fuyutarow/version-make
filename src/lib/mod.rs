@@ -131,7 +131,7 @@ impl Manager {
             None => None,
         };
         match fpath.unwrap_or("".to_owned()).as_str() {
-            "Cargo.toml" => format!(
+            "Cargo.toml" | "pyproject.toml" => format!(
                 r#"(\s*version\s*=\s*["|']){version}(["|']\n)"#,
                 version = version
             ),

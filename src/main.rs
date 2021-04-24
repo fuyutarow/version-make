@@ -22,25 +22,41 @@ use lib::Manager;
 enum Opt {
     #[structopt(name = "show")]
     Show {
+        /// target config file [possible values: Cargo.tomml, package.json, pyproject.toml]
         #[structopt(parse(from_os_str))]
         fpath: PathBuf,
+
+        /// Show only X.Y.Z without -pre+build if version=X.Y.Z-pre+build
         #[structopt(long = "core")]
         core: bool,
     },
     #[structopt(name = "up")]
     Up {
+        /// target config file [possible values: Cargo.tomml, package.json, pyproject.toml]
         #[structopt(parse(from_os_str))]
         fpath: PathBuf,
+
+        /// major version
         #[structopt(short = "x", long = "major")]
         major: bool,
+
+        /// minor version
         #[structopt(short = "y", long = "minor")]
         minor: bool,
+
+        /// patch version
         #[structopt(short = "z", long = "patch")]
         patch: bool,
+
+        /// pre version
         #[structopt(short = "p", long = "pre")]
         pre: Option<String>,
+
+        /// build version
         #[structopt(short = "b", long = "build")]
         build: Option<String>,
+
+        /// Replace the target configuration file when this option is set
         #[structopt(short = "r", long = "replace")]
         replace: bool,
     },
