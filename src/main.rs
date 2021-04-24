@@ -14,7 +14,7 @@ use lib::Manager;
 
 #[derive(StructOpt, Debug)]
 #[structopt(after_help = r##"EXAMPLES
-    $ version-make up -z -r Cargo.toml
+    $ version-make up -zr Cargo.toml
         ... Increment Patch version: x.y.Z+1 and replace new file
     $ version-make up --pre alpha --build beta Cargo.toml
         ... Set pre and build: x.y.z -> x.y.z-alpha+beta

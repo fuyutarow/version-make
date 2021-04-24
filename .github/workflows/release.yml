@@ -9,7 +9,8 @@ jobs:
   build:
     strategy:
       matrix:
-        os: [ubuntu-latest, macOS-latest, windows-latest]
+        # os: [ubuntu-latest, macOS-latest, windows-latest]
+        os: [ubuntu-latest, macOS-latest]
         rust: [stable]
 
     runs-on: ${{ matrix.os }}
@@ -49,14 +50,14 @@ jobs:
         env:
           BIN_NAME: ${{ steps.set_envs.outputs.bin_name }}
           VERSION: ${{ steps.set_envs.outputs.version }}
-      - name: Build for Windows
-        if: matrix.os == 'windows-latest'
-        run: |
-          cargo build --locked --release --target=x86_64-pc-windows-msvc
-          7z a ${BIN_NAME}-v${VERSION}-x86_64-win.zip target/x86_64-pc-windows-msvc/release/${BIN_NAME}.exe
-        env:
-          BIN_NAME: ${{ steps.set_envs.outputs.bin_name }}
-          VERSION: ${{ steps.set_envs.outputs.version }}
+      # - name: Build for Windows
+      #   if: matrix.os == 'windows-latest'
+      #   run: |
+      #     cargo build --locked --release --target=x86_64-pc-windows-msvc
+      #     7z a ${BIN_NAME}-v${VERSION}-x86_64-win.zip target/x86_64-pc-windows-msvc/release/${BIN_NAME}.exe
+      #   env:
+      #     BIN_NAME: ${{ steps.set_envs.outputs.bin_name }}
+      #     VERSION: ${{ steps.set_envs.outputs.version }}
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
@@ -69,6 +70,7 @@ jobs:
         id: sha256_linux
         run: |
           echo "::set-output name=sha::$(shasum -a 256 ${BIN_NAME}-${VERSION}-x86_64-linux.zip |awk '{print $1}')"
+          echo $(shasum -a 256 ${BIN_NAME}-${VERSION}-x86_64-linux.zip |awk '{print $1}')
         env:
           BIN_NAME: ${{ steps.set_envs.outputs.bin_name }}
           VERSION: ${{ steps.set_envs.outputs.version }}
@@ -77,6 +79,7 @@ jobs:
         id: sha256_mac
         run: |
           echo "::set-output name=sha::$(shasum -a 256 ${BIN_NAME}-${VERSION}-x86_64-mac.zip |awk '{print $1}')"
+          echo $(shasum -a 256 ${BIN_NAME}-${VERSION}-x86_64-mac.zip |awk '{print $1}')
         env:
           BIN_NAME: ${{ steps.set_envs.outputs.bin_name }}
           VERSION: ${{ steps.set_envs.outputs.version }}
