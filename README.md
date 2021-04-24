@@ -1,4 +1,4 @@
-# upver
+# version-make
 
 Manager for [SemVer](https://semver.org/)
 
@@ -9,12 +9,12 @@ Support
 
 ## Installation
 ```
-brew install --HEAD fuyutarow/tap/upver
+brew install --HEAD fuyutarow/tap/version-make
 ```
 
 clean uninstall
 ```
-brew uninstall fuyutarow/tap/upver
+brew uninstall fuyutarow/tap/version-make
 brew untap fuyutarow/tap
 ```
 
@@ -24,15 +24,15 @@ semver: X.Y.Z (Major.Minor.Patch)
 
 - Increment Major version: X+1.y.z
   ```
-  upver up -x Cargo.toml
+  version-make up -x Cargo.toml
   ```
 - Increment Patch version: x.y.Z+1 and replace new file
   ```
-  upver up -z -r Cargo.toml
+  version-make up -z -r Cargo.toml
   ```
 - Set pre and build: x.y.z -> x.y.z-alpha+beta
   ```
-  upver up --pre alpha --build beta Cargo.toml
+  version-make up --pre alpha --build beta Cargo.toml
   ```
 
 

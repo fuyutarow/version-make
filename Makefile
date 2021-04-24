@@ -7,7 +7,7 @@ BIN_NAME = upver
 
 export LONG_VERSION
 
-.PHONY: all test clean release_lnx release_win release_mac
+.PHONY: all test clean release_linux release_win release_mac
 
 all: test
 
@@ -20,9 +20,9 @@ watch:
 clean:
 	cargo clean
 
-release_lnx:
+release_linux:
 	cargo build --locked --release --target=x86_64-unknown-linux-musl
-	zip -j ${BIN_NAME}-v${VERSION}-x86_64-lnx.zip target/x86_64-unknown-linux-musl/release/${BIN_NAME}
+	zip -j ${BIN_NAME}-v${VERSION}-x86_64-linux.zip target/x86_64-unknown-linux-musl/release/${BIN_NAME}
 
 release_win:
 	cargo build --locked --release --target=x86_64-pc-windows-msvc

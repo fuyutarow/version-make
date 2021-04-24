@@ -26,18 +26,24 @@ jobs:
         run: |
           rustup target add x86_64-unknown-linux-musl
           sudo apt-get -qq install musl-tools
-      - name: Build for linux
+      - name: Build for Linux
         if: matrix.os == 'ubuntu-latest'
         run: |
-          make release_lnx
-          # cargo install --locked cargo-rpm
-          # make release_rpm
+          make release_linux
+          # cargo build --locked --release --target=x86_64-unknown-linux-musl
+          # zip -j ${BIN_NAME}-v${VERSION}-x86_64-linux.zip target/x86_64-unknown-linux-musl/release/${BIN_NAME}
       - name: Build for macOS
         if: matrix.os == 'macOS-latest'
-        run: make release_mac
+        run: |
+          make release_mac
+          # cargo build --locked --release --target=x86_64-apple-darwin
+          # zip -j ${BIN_NAME}-v${VERSION}-x86_64-mac.zip target/x86_64-apple-darwin/release/${BIN_NAME}
       - name: Build for Windows
         if: matrix.os == 'windows-latest'
-        run: make release_win
+        run: |
+          make release_win
+          # cargo build --locked --release --target=x86_64-pc-windows-msvc
+          # 7z a ${BIN_NAME}-v${VERSION}-x86_64-win.zip target/x86_64-pc-windows-msvc/release/${BIN_NAME}.exe
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
