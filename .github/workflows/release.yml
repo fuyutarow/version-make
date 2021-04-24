@@ -36,28 +36,28 @@ jobs:
           sudo apt-get -qq install musl-tools
       - name: Build for Linux
         if: matrix.os == 'ubuntu-latest'
+        id: build_linux
         run: |
+          BIN_ZIP=./${BIN_NAME}-v${VERSION}-x86_64-linux.zip
           cargo build --locked --release --target=x86_64-unknown-linux-musl
-          zip -j ${BIN_NAME}-v${VERSION}-x86_64-linux.zip target/x86_64-unknown-linux-musl/release/${BIN_NAME}
+          zip -j ${BIN_ZIP} target/x86_64-unknown-linux-musl/release/${BIN_NAME}
+          echo "::set-output name=sha::$(shasum -a 256 ${BIN_ZIP} |awk '{print $1}')"
+          echo $(shasum -a 256 ${BIN_ZIP} | awk '{print $1}')
         env:
           BIN_NAME: ${{ steps.set_envs.outputs.bin_name }}
           VERSION: ${{ steps.set_envs.outputs.version }}
       - name: Build for macOS
         if: matrix.os == 'macOS-latest'
+        id: build_mac
         run: |
+          BIN_ZIP=./${BIN_NAME}-v${VERSION}-x86_64-mac.zip
           cargo build --locked --release --target=x86_64-apple-darwin
-          zip -j ${BIN_NAME}-v${VERSION}-x86_64-mac.zip target/x86_64-apple-darwin/release/${BIN_NAME}
+          zip -j ${BIN_ZIP} target/x86_64-apple-darwin/release/${BIN_NAME}
+          echo "::set-output name=sha::$(shasum -a 256 ${BIN_ZIP} |awk '{print $1}')"
+          echo $(shasum -a 256 ${BIN_ZIP} | awk '{print $1}')
         env:
           BIN_NAME: ${{ steps.set_envs.outputs.bin_name }}
           VERSION: ${{ steps.set_envs.outputs.version }}
-      # - name: Build for Windows
-      #   if: matrix.os == 'windows-latest'
-      #   run: |
-      #     cargo build --locked --release --target=x86_64-pc-windows-msvc
-      #     7z a ${BIN_NAME}-v${VERSION}-x86_64-win.zip target/x86_64-pc-windows-msvc/release/${BIN_NAME}.exe
-      #   env:
-      #     BIN_NAME: ${{ steps.set_envs.outputs.bin_name }}
-      #     VERSION: ${{ steps.set_envs.outputs.version }}
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
@@ -65,25 +65,7 @@ jobs:
           files: "*.zip\n*.rpm"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Set SHA256_linux
-        if: matrix.os == 'ubuntu-latest'
-        id: sha256_linux
-        run: |
-          echo "::set-output name=sha::$(shasum -a 256 ${BIN_NAME}-${VERSION}-x86_64-linux.zip |awk '{print $1}')"
-          echo $(shasum -a 256 ${BIN_NAME}-${VERSION}-x86_64-linux.zip |awk '{print $1}')
-        env:
-          BIN_NAME: ${{ steps.set_envs.outputs.bin_name }}
-          VERSION: ${{ steps.set_envs.outputs.version }}
-      - name: Set SHA256_mac
-        if: matrix.os == 'macOS-latest'
-        id: sha256_mac
-        run: |
-          echo "::set-output name=sha::$(shasum -a 256 ${BIN_NAME}-${VERSION}-x86_64-mac.zip |awk '{print $1}')"
-          echo $(shasum -a 256 ${BIN_NAME}-${VERSION}-x86_64-mac.zip |awk '{print $1}')
-        env:
-          BIN_NAME: ${{ steps.set_envs.outputs.bin_name }}
-          VERSION: ${{ steps.set_envs.outputs.version }}
-      - name: Dispatch homebrew Repository update for linux
+      - name: Dispatch homebrew Repository update for Linux
         if: matrix.os == 'ubuntu-latest'
         uses: peter-evans/repository-dispatch@v1
         with:
@@ -95,7 +77,7 @@ jobs:
               "os": "linux",
               "bin_name": "${{ steps.set_envs.outputs.bin_name }}",
               "version": "${{ steps.set_envs.outputs.version }}",
-              "sha": "${{ steps.sha256_linux.outputs.sha }}"
+              "sha": "${{ steps.build_linux.outputs.sha }}"
             }
       - name: Dispatch homebrew Repository update for mac
         if: matrix.os == 'macOS-latest'
@@ -109,5 +91,5 @@ jobs:
               "os": "mac",
               "bin_name": "${{ steps.set_envs.outputs.bin_name }}",
               "version": "${{ steps.set_envs.outputs.version }}",
-              "sha": "${{ steps.sha256_mac.outputs.sha }}"
+              "sha": "${{ steps.build_mac.outputs.sha }}"
             }
