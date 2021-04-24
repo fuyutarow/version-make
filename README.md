@@ -9,13 +9,13 @@ Support
 
 ## Installation
 ```
-brew install --HEAD fuyutarow/upver/upver
+brew install --HEAD fuyutarow/tap/upver
 ```
 
 clean uninstall
 ```
-brew uninstall fuyutarow/upver/upver
-brew untap fuyutarow/upver
+brew uninstall fuyutarow/tap/upver
+brew untap fuyutarow/tap
 ```
 
 
@@ -38,5 +38,6 @@ semver: X.Y.Z (Major.Minor.Patch)
 
 ## Development
 ```
+cargo install cargo-make
 cargo make hot
 ```
