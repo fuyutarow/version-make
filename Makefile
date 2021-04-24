@@ -1,9 +1,9 @@
-VERSION = $(patsubst "%",%, $(word 3, $(shell grep version Cargo.toml)))
+VERSION = $(patsubst "%",%, $(word 3, $(shell grep "version =" Cargo.toml)))
 BUILD_TIME = $(shell date +"%Y/%m/%d %H:%M:%S")
 GIT_REVISION = $(shell git log -1 --format="%h")
 RUST_VERSION = $(word 2, $(shell rustc -V))
 LONG_VERSION = "$(VERSION) ( rev: $(GIT_REVISION), rustc: $(RUST_VERSION), build at: $(BUILD_TIME) )"
-BIN_NAME = snippets-make
+BIN_NAME = version-make
 
 export LONG_VERSION
 
