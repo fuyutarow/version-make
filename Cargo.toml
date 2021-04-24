@@ -1,6 +1,6 @@
 [package]
 name = "version-make"
-version = "0.202104.4"
+version = "0.202104.5"
 authors = ["fuyutarow <fuyutarow@gmail.com>"]
 edition = "2018"
 

@@ -22,7 +22,7 @@ use lib::Manager;
 enum Opt {
     #[structopt(name = "show")]
     Show {
-        /// target config file [possible values: Cargo.tomml, package.json, pyproject.toml]
+        /// target config file [possible values: Cargo.tomml, package.json, pyproject.toml, manifest.json]
         #[structopt(parse(from_os_str))]
         fpath: PathBuf,
 
@@ -32,7 +32,7 @@ enum Opt {
     },
     #[structopt(name = "up")]
     Up {
-        /// target config file [possible values: Cargo.tomml, package.json, pyproject.toml]
+        /// target config file [possible values: Cargo.tomml, package.json, pyproject.toml, manifest.json]
         #[structopt(parse(from_os_str))]
         fpath: PathBuf,
 

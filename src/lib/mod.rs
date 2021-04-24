@@ -135,7 +135,9 @@ impl Manager {
                 r#"(\s*version\s*=\s*["|']){version}(["|']\n)"#,
                 version = version
             ),
-            "package.json" => format!(r#"("version":\s*"){version}(")"#, version = version),
+            "package.json" | "manifest.json" => {
+                format!(r#"("version":\s*"){version}(")"#, version = version)
+            }
             "vue.config.js" => format!(
                 r#"(process\.env\.VUE_APP_VERSION\s*=\s*["|']){version}(["|'];*)"#,
                 version = version
