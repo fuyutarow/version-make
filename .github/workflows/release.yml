@@ -15,6 +15,13 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
+      - name: Set envs
+        id: set_envs
+        run: |
+          echo ::set-output name=bin_name::version-make
+          echo ::set-output name=version::${GITHUB_REF/refs\/tags\//}
+        env:
+          GITHUB_REF: ${{ github.ref }}
       - name: Setup Rust
         uses: hecrj/setup-rust-action@v1
         with:
@@ -29,21 +36,27 @@ jobs:
       - name: Build for Linux
         if: matrix.os == 'ubuntu-latest'
         run: |
-          make release_linux
-          # cargo build --locked --release --target=x86_64-unknown-linux-musl
-          # zip -j ${BIN_NAME}-v${VERSION}-x86_64-linux.zip target/x86_64-unknown-linux-musl/release/${BIN_NAME}
+          cargo build --locked --release --target=x86_64-unknown-linux-musl
+          zip -j ${BIN_NAME}-v${VERSION}-x86_64-linux.zip target/x86_64-unknown-linux-musl/release/${BIN_NAME}
+        env:
+          BIN_NAME: ${{ steps.set_envs.outputs.bin_name }}
+          VERSION: ${{ steps.set_envs.outputs.version }}
       - name: Build for macOS
         if: matrix.os == 'macOS-latest'
         run: |
-          make release_mac
-          # cargo build --locked --release --target=x86_64-apple-darwin
-          # zip -j ${BIN_NAME}-v${VERSION}-x86_64-mac.zip target/x86_64-apple-darwin/release/${BIN_NAME}
+          cargo build --locked --release --target=x86_64-apple-darwin
+          zip -j ${BIN_NAME}-v${VERSION}-x86_64-mac.zip target/x86_64-apple-darwin/release/${BIN_NAME}
+        env:
+          BIN_NAME: ${{ steps.set_envs.outputs.bin_name }}
+          VERSION: ${{ steps.set_envs.outputs.version }}
       - name: Build for Windows
         if: matrix.os == 'windows-latest'
         run: |
-          make release_win
-          # cargo build --locked --release --target=x86_64-pc-windows-msvc
-          # 7z a ${BIN_NAME}-v${VERSION}-x86_64-win.zip target/x86_64-pc-windows-msvc/release/${BIN_NAME}.exe
+          cargo build --locked --release --target=x86_64-pc-windows-msvc
+          7z a ${BIN_NAME}-v${VERSION}-x86_64-win.zip target/x86_64-pc-windows-msvc/release/${BIN_NAME}.exe
+        env:
+          BIN_NAME: ${{ steps.set_envs.outputs.bin_name }}
+          VERSION: ${{ steps.set_envs.outputs.version }}
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
@@ -51,3 +64,47 @@ jobs:
           files: "*.zip\n*.rpm"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Set SHA256_linux
+        if: matrix.os == 'ubuntu-latest'
+        id: sha256_linux
+        run: |
+          echo "::set-output name=sha::$(shasum -a 256 ${BIN_NAME}-${VERSION}-x86_64-linux.zip |awk '{print $1}')"
+        env:
+          BIN_NAME: ${{ steps.set_envs.outputs.bin_name }}
+          VERSION: ${{ steps.set_envs.outputs.version }}
+      - name: Set SHA256_mac
+        if: matrix.os == 'macOS-latest'
+        id: sha256_mac
+        run: |
+          echo "::set-output name=sha::$(shasum -a 256 ${BIN_NAME}-${VERSION}-x86_64-mac.zip |awk '{print $1}')"
+        env:
+          BIN_NAME: ${{ steps.set_envs.outputs.bin_name }}
+          VERSION: ${{ steps.set_envs.outputs.version }}
+      - name: Dispatch homebrew Repository update for linux
+        if: matrix.os == 'ubuntu-latest'
+        uses: peter-evans/repository-dispatch@v1
+        with:
+          token: ${{ secrets.HOMEBREW_REPO_GITHUB_TOKEN }}
+          repository: fuyutarow/homebrew-tap
+          event-type: update
+          client-payload: |
+            {
+              "os": "linux",
+              "bin_name": "${{ steps.set_envs.outputs.bin_name }}",
+              "version": "${{ steps.set_envs.outputs.version }}",
+              "sha": "${{ steps.sha256_linux.outputs.sha }}"
+            }
+      - name: Dispatch homebrew Repository update for mac
+        if: matrix.os == 'macOS-latest'
+        uses: peter-evans/repository-dispatch@v1
+        with:
+          token: ${{ secrets.HOMEBREW_REPO_GITHUB_TOKEN }}
+          repository: fuyutarow/homebrew-tap
+          event-type: update
+          client-payload: |
+            {
+              "os": "mac",
+              "bin_name": "${{ steps.set_envs.outputs.bin_name }}",
+              "version": "${{ steps.set_envs.outputs.version }}",
+              "sha": "${{ steps.sha256_mac.outputs.sha }}"
+            }
