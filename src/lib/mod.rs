@@ -1,13 +1,9 @@
 use regex;
 use semver::Version;
 use serde_derive::{Deserialize, Serialize};
-use std::ffi::OsStr;
-use std::fs;
 use std::fs::File;
 use std::io::prelude::*;
-use std::path::{Path, PathBuf};
-use structopt::StructOpt;
-use toml::Value as Toml;
+use std::path::PathBuf;
 
 pub trait Semver {
     fn up_major(self, n: u64) -> Self;

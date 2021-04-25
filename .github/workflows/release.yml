@@ -64,7 +64,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Dispatch homebrew Repository update
-        if: matrix.os == 'ubuntu-latest'
         uses: peter-evans/repository-dispatch@v1
         with:
           token: ${{ secrets.HOMEBREW_REPO_GITHUB_TOKEN }}

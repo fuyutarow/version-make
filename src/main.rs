@@ -1,13 +1,5 @@
-use regex;
-use semver::Version;
-use serde_derive::{Deserialize, Serialize};
-use std::ffi::OsStr;
-use std::fs;
-use std::fs::File;
-use std::io::prelude::*;
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 use structopt::StructOpt;
-use toml::Value as Toml;
 
 mod lib;
 use lib::Manager;
@@ -93,6 +85,5 @@ fn main() {
                 manager.print();
             }
         }
-        _ => {}
     }
 }
