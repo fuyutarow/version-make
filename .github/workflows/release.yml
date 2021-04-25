@@ -63,7 +63,8 @@ jobs:
           files: "*.zip\n*.rpm"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Dispatch homebrew Repository update
+      - name: Dispatch homebrew Repository update for Linux
+        if: matrix.os == 'ubuntu-latest'
         uses: peter-evans/repository-dispatch@v1
         with:
           token: ${{ secrets.HOMEBREW_REPO_GITHUB_TOKEN }}
@@ -71,8 +72,44 @@ jobs:
           event-type: update
           client-payload: |
             {
+              "type": "update_sha",
+              "os": "linux",
               "bin_name": "${{ steps.set_envs.outputs.bin_name }}",
               "version": "${{ steps.set_envs.outputs.version }}",
-              "sha_linux": "${{ steps.build_linux.outputs.sha }}",
-              "sha_mac": "${{ steps.build_mac.outputs.sha }}"
+              "sha": "${{ steps.build_linux.outputs.sha }}"
+            }
+      - name: Dispatch homebrew Repository update for mac
+        if: matrix.os == 'macOS-latest'
+        uses: peter-evans/repository-dispatch@v1
+        with:
+          token: ${{ secrets.HOMEBREW_REPO_GITHUB_TOKEN }}
+          repository: fuyutarow/homebrew-tap
+          event-type: update
+          client-payload: |
+            {
+              "type": "update_sha",
+              "os": "mac",
+              "bin_name": "${{ steps.set_envs.outputs.bin_name }}",
+              "version": "${{ steps.set_envs.outputs.version }}",
+              "sha": "${{ steps.build_mac.outputs.sha }}"
+            }
+
+  final:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Set envs
+        id: set_envs
+        run: |
+          echo ::set-output name=bin_name::version-make
+      - name: Dispatch homebrew Repository final
+        uses: peter-evans/repository-dispatch@v1
+        with:
+          token: ${{ secrets.HOMEBREW_REPO_GITHUB_TOKEN }}
+          repository: fuyutarow/homebrew-tap
+          event-type: update
+          client-payload: |
+            {
+              "type": "update_formula",
+              "bin_name": "${{ steps.set_envs.outputs.bin_name }}"
             }
