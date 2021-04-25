@@ -65,9 +65,9 @@ enum Opt {
 fn main() {
     match Opt::from_args() {
         Opt::Show { fpath, core } => {
-            let mut manager = Manager::load(&fpath);
+            let manager = Manager::load(&fpath);
 
-            let ver = if (core) {
+            let ver = if core {
                 manager.show_version_core()
             } else {
                 manager.show_version()
