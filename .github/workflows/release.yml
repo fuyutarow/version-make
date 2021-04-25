@@ -63,7 +63,7 @@ jobs:
           files: "*.zip\n*.rpm"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Dispatch homebrew Repository update for Linux
+      - name: Dispatch homebrew Repository update
         if: matrix.os == 'ubuntu-latest'
         uses: peter-evans/repository-dispatch@v1
         with:
@@ -72,22 +72,8 @@ jobs:
           event-type: update
           client-payload: |
             {
-              "os": "linux",
               "bin_name": "${{ steps.set_envs.outputs.bin_name }}",
               "version": "${{ steps.set_envs.outputs.version }}",
-              "sha": "${{ steps.build_linux.outputs.sha }}"
-            }
-      - name: Dispatch homebrew Repository update for mac
-        if: matrix.os == 'macOS-latest'
-        uses: peter-evans/repository-dispatch@v1
-        with:
-          token: ${{ secrets.HOMEBREW_REPO_GITHUB_TOKEN }}
-          repository: fuyutarow/homebrew-tap
-          event-type: update
-          client-payload: |
-            {
-              "os": "mac",
-              "bin_name": "${{ steps.set_envs.outputs.bin_name }}",
-              "version": "${{ steps.set_envs.outputs.version }}",
-              "sha": "${{ steps.build_mac.outputs.sha }}"
+              "sha_linux": "${{ steps.build_linux.outputs.sha }}",
+              "sha_mac": "${{ steps.build_mac.outputs.sha }}"
             }
