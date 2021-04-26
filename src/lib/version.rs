@@ -23,18 +23,18 @@ impl Semver for Version {
         build: Option<String>,
     ) -> Self {
         Self {
-            major: if let Some(n) = patch { n } else { self.major },
-            minor: if let Some(n) = patch { n } else { self.minor },
+            major: if let Some(n) = major { n } else { self.major },
+            minor: if let Some(n) = minor { n } else { self.minor },
             patch: if let Some(n) = patch { n } else { self.patch },
-            pre: if let Some(s) = pre {
-                vec![semver::Identifier::AlphaNumeric(s.into())]
-            } else {
-                self.pre.clone()
+            pre: match pre {
+                Some(s) if &s == "" => vec![],
+                Some(s) => vec![semver::Identifier::AlphaNumeric(s.into())],
+                _ => self.pre.clone(),
             },
-            build: if let Some(s) = build {
-                vec![semver::Identifier::AlphaNumeric(s.into())]
-            } else {
-                self.build.clone()
+            build: match build {
+                Some(s) if &s == "" => vec![],
+                Some(s) => vec![semver::Identifier::AlphaNumeric(s.into())],
+                _ => self.build.clone(),
             },
         }
     }

@@ -93,7 +93,7 @@ fn main() {
             replace,
         } => {
             let mut manager = Manager::load(&fpath);
-            manager = manager.update_version((major, minor, patch, pre, build));
+            manager = manager.update_version(major, minor, patch);
 
             if replace {
                 manager.overwrite();

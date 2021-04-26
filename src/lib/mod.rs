@@ -63,18 +63,15 @@ impl Manager {
         .unwrap();
         let caps = re_version.captures(&self.contents).unwrap();
         let ver_s = &caps["version"];
-        return Version::parse(&ver_s).unwrap();
+        let ver = Version::parse(&ver_s).unwrap();
+        ver
     }
 
     pub fn update_version(
         self,
-        (major, minor, patch, pre, build): (
-            Option<u64>,
-            Option<u64>,
-            Option<u64>,
-            Option<String>,
-            Option<String>,
-        ),
+        major: Option<u64>,
+        minor: Option<u64>,
+        patch: Option<u64>,
     ) -> Self {
         let re_version = regex::Regex::new(
             &self
