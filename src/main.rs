@@ -22,6 +22,16 @@ enum Opt {
         #[structopt(long = "core")]
         core: bool,
     },
+    #[structopt(name = "set")]
+    Set {
+        /// target config file [possible values: Cargo.tomml, package.json, pyproject.toml, manifest.json]
+        #[structopt(parse(from_os_str))]
+        fpath: PathBuf,
+
+        /// The version to be set in the configuration file
+        #[structopt()]
+        version: String,
+    },
     #[structopt(name = "up")]
     Up {
         /// target config file [possible values: Cargo.tomml, package.json, pyproject.toml, manifest.json]
@@ -30,15 +40,15 @@ enum Opt {
 
         /// major version
         #[structopt(short = "x", long = "major")]
-        major: bool,
+        major: Option<u64>,
 
         /// minor version
         #[structopt(short = "y", long = "minor")]
-        minor: bool,
+        minor: Option<u64>,
 
         /// patch version
         #[structopt(short = "z", long = "patch")]
-        patch: bool,
+        patch: Option<u64>,
 
         /// pre version
         #[structopt(short = "p", long = "pre")]
@@ -66,6 +76,12 @@ fn main() {
             };
 
             println!("{}", &ver)
+        }
+        Opt::Set { fpath, version } => {
+            let manager = Manager::load(&fpath);
+
+            let v = manager.parse_version();
+            dbg!(v);
         }
         Opt::Up {
             fpath,

@@ -4,7 +4,11 @@ version = "0.202104.14"
 authors = ["fuyutarow <fuyutarow@gmail.com>"]
 edition = "2018"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[lib]
+name = "cli"
+path = "src/lib/mod.rs"
+
+
 
 [dependencies]
 serde = "1.0.104"
