@@ -2,6 +2,7 @@ use std::path::PathBuf;
 use structopt::StructOpt;
 
 mod lib;
+use lib::version::Version;
 use lib::Manager;
 
 #[derive(StructOpt, Debug)]
@@ -29,8 +30,12 @@ enum Opt {
         fpath: PathBuf,
 
         /// The version to be set in the configuration file
-        #[structopt()]
-        version: String,
+        #[structopt(short = "v", long = "version")]
+        maybe_version: String,
+
+        /// Replace the target configuration file when this option is set
+        #[structopt(short = "r", long = "replace")]
+        replace: bool,
     },
     #[structopt(name = "up")]
     Up {
@@ -77,11 +82,32 @@ fn main() {
 
             println!("{}", &ver)
         }
-        Opt::Set { fpath, version } => {
-            let manager = Manager::load(&fpath);
+        Opt::Set {
+            fpath,
+            maybe_version,
+            replace,
+        } => {
+            let mut manager = Manager::load(&fpath);
+            let current_version = manager.parse_version();
+            if let Ok(version) = Version::parse(&maybe_version) {
+                manager = manager.rewrite_version(version);
+            } else {
+                println!(r#""{}" is invalid as semver"#, maybe_version);
+                return;
+            }
 
-            let v = manager.parse_version();
-            dbg!(v);
+            let new_version = manager.parse_version();
+            if replace {
+                manager.overwrite_file();
+                println!(
+                    "{} was updated {} -> {}",
+                    fpath.as_path().to_str().unwrap().to_string(),
+                    current_version,
+                    new_version
+                );
+            } else {
+                manager.print();
+            }
         }
         Opt::Up {
             fpath,
@@ -93,10 +119,19 @@ fn main() {
             replace,
         } => {
             let mut manager = Manager::load(&fpath);
+            let current_version = manager.parse_version();
             manager = manager.update_version(major, minor, patch);
+            manager = manager.set_version(None, None, None, pre, build);
+            let new_version = manager.parse_version();
 
             if replace {
-                manager.overwrite();
+                manager.overwrite_file();
+                println!(
+                    "{} was updated {} -> {}",
+                    fpath.as_path().to_str().unwrap().to_string(),
+                    current_version,
+                    new_version
+                );
             } else {
                 manager.print();
             }

@@ -18,6 +18,11 @@ pub struct Manager {
     contents: String,
 }
 
+enum Operation {
+    set,
+    update,
+}
+
 impl Manager {
     pub fn load(fpath: &PathBuf) -> Self {
         let mut f = File::open(fpath).expect("file not found");
@@ -54,7 +59,7 @@ impl Manager {
         }
     }
 
-    pub fn parse_version(self) -> Version {
+    pub fn parse_version(&self) -> Version {
         let re_version = regex::Regex::new(
             &self
                 .clone()
@@ -63,16 +68,11 @@ impl Manager {
         .unwrap();
         let caps = re_version.captures(&self.contents).unwrap();
         let ver_s = &caps["version"];
-        let ver = Version::parse(&ver_s).unwrap();
-        ver
+        let current_version = Version::parse(&ver_s).unwrap();
+        current_version
     }
 
-    pub fn update_version(
-        self,
-        major: Option<u64>,
-        minor: Option<u64>,
-        patch: Option<u64>,
-    ) -> Self {
+    pub fn rewrite_version(self, version: Version) -> Self {
         let re_version = regex::Regex::new(
             &self
                 .clone()
@@ -80,11 +80,9 @@ impl Manager {
         )
         .unwrap();
         let caps = re_version.captures(&self.contents).unwrap();
-        let ver_s = &caps["version"];
-        let mut ver = Version::parse(&ver_s).unwrap();
-        ver = ver.update(major, minor, patch);
+        let _ver_s = &caps["version"];
 
-        let ver_t: String = format!("{}{}{}", &caps[1], &ver.to_string().as_str(), &caps[3]);
+        let ver_t: String = format!("{}{}{}", &caps[1], &version.to_string().as_str(), &caps[3]);
         let re_version = regex::Regex::new(
             &self
                 .clone()
@@ -98,12 +96,36 @@ impl Manager {
         Self { contents, ..self }
     }
 
+    pub fn set_version(
+        self,
+        major: Option<u64>,
+        minor: Option<u64>,
+        patch: Option<u64>,
+        pre: Option<String>,
+        build: Option<String>,
+    ) -> Self {
+        let mut version = self.parse_version();
+        version = version.set(major, minor, patch, pre, build);
+        self.rewrite_version(version)
+    }
+
+    pub fn update_version(
+        self,
+        major: Option<u64>,
+        minor: Option<u64>,
+        patch: Option<u64>,
+    ) -> Self {
+        let mut version = self.parse_version();
+        version = version.update(major, minor, patch);
+        self.rewrite_version(version)
+    }
+
     fn save(self, out_path: &PathBuf) {
         let mut file = File::create(out_path).unwrap();
         write!(&mut file, "{}", &self.contents).unwrap();
     }
 
-    pub fn overwrite(self) {
+    pub fn overwrite_file(self) {
         self.clone().save(&self.fpath)
     }
 
