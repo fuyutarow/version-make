@@ -1,6 +1,6 @@
 [package]
 name = "version-make"
-version = "0.202104.14"
+version = "0.202004.16"
 authors = ["fuyutarow <fuyutarow@gmail.com>"]
 edition = "2018"
 
@@ -17,4 +17,5 @@ structopt = "0.3.9"
 semver = "0.9.0"
 toml = "0.5.6"
 regex = "1.3.4"
+enum = "0.0.0"
 

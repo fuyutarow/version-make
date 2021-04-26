@@ -34,7 +34,7 @@ enum Opt {
         maybe_version: String,
 
         /// Replace the target configuration file when this option is set
-        #[structopt(short = "r", long = "replace")]
+        #[structopt(short = "r", long)]
         replace: bool,
     },
     #[structopt(name = "up")]
@@ -44,27 +44,26 @@ enum Opt {
         fpath: PathBuf,
 
         /// major version
-        #[structopt(short = "x", long = "major")]
-        major: Option<u64>,
+        #[structopt(short = "x", long)]
+        major: bool,
 
         /// minor version
-        #[structopt(short = "y", long = "minor")]
-        minor: Option<u64>,
+        #[structopt(short = "y", long)]
+        minor: bool,
 
         /// patch version
-        #[structopt(short = "z", long = "patch")]
-        patch: Option<u64>,
+        #[structopt(short = "z", long)]
+        patch: bool,
 
-        /// pre version
-        #[structopt(short = "p", long = "pre")]
+        #[structopt(short = "a", long)]
         pre: Option<String>,
 
         /// build version
-        #[structopt(short = "b", long = "build")]
+        #[structopt(short = "b", long)]
         build: Option<String>,
 
         /// Replace the target configuration file when this option is set
-        #[structopt(short = "r", long = "replace")]
+        #[structopt(short = "r", long)]
         replace: bool,
     },
 }
@@ -120,7 +119,11 @@ fn main() {
         } => {
             let mut manager = Manager::load(&fpath);
             let current_version = manager.parse_version();
-            manager = manager.update_version(major, minor, patch);
+            manager = manager.update_version(
+                if major { Some(1) } else { None },
+                if minor { Some(1) } else { None },
+                if patch { Some(1) } else { None },
+            );
             manager = manager.set_version(None, None, None, pre, build);
             let new_version = manager.parse_version();
 

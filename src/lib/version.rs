@@ -40,12 +40,22 @@ impl Semver for Version {
     }
 
     fn update(&mut self, major: Option<u64>, minor: Option<u64>, patch: Option<u64>) -> Self {
-        Self {
-            major: self.major + if let Some(n) = major { n } else { 0 },
-            minor: self.minor + if let Some(n) = minor { n } else { 0 },
-            patch: self.patch + if let Some(n) = patch { n } else { 0 },
-            ..self.to_owned()
+        if let Some(n) = major {
+            for _ in 0..n {
+                self.increment_major();
+            }
         }
+        if let Some(n) = minor {
+            for _ in 0..n {
+                self.increment_minor();
+            }
+        }
+        if let Some(n) = patch {
+            for _ in 0..n {
+                self.increment_patch();
+            }
+        }
+        self.to_owned()
     }
 }
 
